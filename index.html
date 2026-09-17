@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepVantage — Deep Samani</title>
+<meta name="description" content="Deep Samani — a personal research archive across philosophy, science, art, and modern thought.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#EDEAE3',
+          inkmute: '#9C958B',
+          inkfaint: '#6B655D',
+          bg: '#121212',
+          panel: '#161514',
+          panel2: '#1B1A18',
+          hairline: '#2A2825',
+          gold: '#C3A05C',
+          goldbright: '#D9B978',
+        },
+        fontFamily: {
+          serif: ['Fraunces', 'serif'],
+          sans: ['Inter', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  /* FIX: CRUCIAL MOBILE SCROLL UNLOCK ANCHOR */
+  html, body { 
+    overflow-y: auto !important; 
+    height: auto !important; 
+    min-height: 100vh !important; 
+    scroll-behavior: smooth; 
+  }
+  body { background-color: #121212; }
+  ::selection { background: #C3A05C; color: #121212; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #121212; }
+  ::-webkit-scrollbar-thumb { background: #2A2825; border: 2px solid #121212; }
+
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .rise-in { animation: riseIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .rise-in { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  .card-portal { transition: border-color 0.25s ease, background-color 0.25s ease; }
+  .card-portal:hover { border-color: #C3A05C; background-color: #1B1A18; }
+
+  #pdfModal { transition: opacity 0.25s ease; }
+  #pdfModalPanel { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; }
+
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+    background: #C3A05C; transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease;
+  }
+  .nav-link:hover::after { transform: scaleX(1); }
+
+  .focus-gold:focus-visible { outline: 2px solid #C3A05C; outline-offset: 3px; }
+
+  .logo-mark { letter-spacing: 0.18em; }
+</style>
+</head>
+
+<body class="bg-bg text-ink font-sans antialiased">
+
+<!-- ============ NAV ============ -->
+<header class="fixed top-0 left-0 right-0 z-40 bg-bg/90 backdrop-blur border-b border-hairline">
+  <div class="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+    <a href="#top" class="logo-mark font-serif text-base text-ink">DEEP<span class="text-goldbright">VANTAGE</span></a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-inkmute">
+      <a href="#about" class="nav-link hover:text-ink focus-gold">About</a>
+      <a href="#matrix" class="nav-link hover:text-ink focus-gold">Fields of Study</a>
+      <a href="#archive" class="nav-link hover:text-ink focus-gold">Archive</a>
+      <a href="#contact" class="nav-link hover:text-ink focus-gold">Contact</a>
+    </nav>
+    <button id="navToggle" aria-label="Open menu" class="md:hidden text-ink focus-gold">
+      <i class="fa-solid fa-bars text-lg"></i>
+    </button>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden border-t border-hairline bg-bg">
+    <div class="flex flex-col px-6 py-4 gap-4 text-sm text-inkmute">
+      <a href="#about" class="mobile-menu-item hover:text-ink">About</a>
+      <a href="#matrix" class="mobile-menu-item hover:text-ink">Fields of Study</a>
+      <a href="#archive" class="mobile-menu-item hover:text-ink">Archive</a>
+      <a href="#contact" class="mobile-menu-item hover:text-ink">Contact</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="top" class="pt-16">
+  <div id="about" class="max-w-7xl mx-auto grid md:grid-cols-2 min-h-[88vh]">
+
+    <!-- Image side -->
+    <div class="relative flex items-center justify-center px-8 md:px-14 py-16 order-1 md:order-none border-b md:border-b-0 md:border-r border-hairline">
+      <div class="rise-in w-full max-w-sm border border-hairline p-2" style="animation-delay:0.05s;">
+        <div class="relative overflow-hidden bg-panel">
+          <img src="data:image/jpeg;base64,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" alt="Portrait" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+
+    <!-- Biography side -->
+    <div class="flex flex-col justify-center px-8 md:px-16 py-16">
+      <div class="rise-in space-y-6" style="animation-delay:0.15s;">
+        <div class="font-mono text-xs text-gold uppercase tracking-[0.2em]">Polymath System Identity</div>
+        <h1 class="text-4xl md:text-5xl font-serif font-light tracking-tight text-ink">Deep Samani</h1>
+        <p class="text-inkmute font-serif text-lg leading-relaxed font-light italic">
+          "I am a lifelong learner and polymath driven by deep curiosity across many fields. I pursue knowledge not in isolation, but as interconnected systems of understanding—drawing wisdom from science, philosophy, history, the arts, and technology to form a richer view of the world. My approach blends rigorous study with practical insight, allowing me to connect ideas across disciplines and apply them in creative and meaningful ways. Whether exploring the foundations of human thought, the workings of the natural world, or the evolving landscape of modern innovation, I am committed to continuous growth and the pursuit of genuine understanding."
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ MATRIX ============ -->
+<section id="matrix" class="py-24 border-t border-b border-hairline bg-panel">
+  <div class="max-w-7xl mx-auto px-6 md:px-10">
+    
+    <div class="mb-16 max-w-xl">
