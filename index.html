@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>DeepVantage — Deep Samani</title>
+<meta name="description" content="Deep Samani — a personal research archive across philosophy, science, art, and modern thought.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#EDEAE3',
+          inkmute: '#9C958B',
+          inkfaint: '#6B655D',
+          bg: '#121212',
+          panel: '#161514',
+          panel2: '#1B1A18',
+          hairline: '#2A2825',
+          gold: '#C3A05C',
+          goldbright: '#D9B978',
+        },
+        fontFamily: {
+          serif: ['Fraunces', 'serif'],
+          sans: ['Inter', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+
+<!-- Critical CSS: does not depend on Tailwind loading. Guarantees the page
+     is visible, scrollable, and correctly colored even if the Tailwind CDN
+     script is slow, blocked, or fails on a mobile connection. -->
+<style>
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #121212 !important;
+    color: #f4f4f5 !important;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh;
+    position: relative;
+    -webkit-text-size-adjust: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  a, p, h1, h2, h3, h4, span, li, button {
+    color: inherit;
+  }
+
+  ::selection { background: #C3A05C; color: #121212; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #121212; }
+  ::-webkit-scrollbar-thumb { background: #2A2825; border: 2px solid #121212; }
+
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .rise-in { animation: riseIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .rise-in { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  .card-portal { transition: border-color 0.25s ease, background-color 0.25s ease; }
+  .card-portal:hover { border-color: #C3A05C; background-color: #1B1A18; }
+
+  #pdfModal { transition: opacity 0.25s ease; }
+  #pdfModalPanel { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; }
+
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+    background: #C3A05C; transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease;
+  }
+  .nav-link:hover::after { transform: scaleX(1); }
+
+  .focus-gold:focus-visible { outline: 2px solid #C3A05C; outline-offset: 3px; }
+
+  .logo-mark { letter-spacing: 0.18em; }
+
+  /* Mobile menu visibility is controlled with a plain CSS class instead of
+     relying purely on the Tailwind CDN's runtime "hidden" utility, so the
+     menu still opens even if Tailwind's styles load late on a phone. */
+  .mm-hidden { display: none !important; }
+
+  @media (min-width: 768px) {
+    #mobileMenu { display: none !important; }
+  }
+</style>
+</head>
+
+<body style="background-color: #121212; color: #f4f4f5;">
+
+<!-- ============ NAV ============ -->
+<header class="fixed top-0 left-0 right-0 z-40 bg-bg/90 backdrop-blur border-b border-hairline">
+  <div class="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+    <a href="#top" class="logo-mark font-serif text-base text-ink">DEEP<span class="text-goldbright">VANTAGE</span></a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-inkmute">
+      <a href="#about" class="nav-link hover:text-ink focus-gold">About</a>
+      <a href="#matrix" class="nav-link hover:text-ink focus-gold">Fields of Study</a>
+      <a href="#archive" class="nav-link hover:text-ink focus-gold">Archive</a>
+      <a href="#contact" class="nav-link hover:text-ink focus-gold">Contact</a>
+    </nav>
+    <button id="navToggle" aria-label="Open menu" class="md:hidden text-ink focus-gold" style="background:none;border:none;cursor:pointer;">
+      <i id="navToggleIcon" class="fa-solid fa-bars text-lg"></i>
+    </button>
+  </div>
+  <div id="mobileMenu" class="mm-hidden border-t border-hairline bg-bg">
+    <div class="flex flex-col px-6 py-4 gap-4 text-sm text-inkmute">
+      <a href="#about" class="hover:text-ink">About</a>
+      <a href="#matrix" class="hover:text-ink">Fields of Study</a>
+      <a href="#archive" class="hover:text-ink">Archive</a>
+      <a href="#contact" class="hover:text-ink">Contact</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="top" style="padding-top: 64px;">
+  <div id="about" class="max-w-7xl mx-auto grid md:grid-cols-2 md:min-h-[80vh]">
+
+    <!-- Image side -->
+    <div class="relative flex items-center justify-center px-8 md:px-14 py-16 order-1 md:order-none border-b md:border-b-0 md:border-r border-hairline">
+      <div class="rise-in w-full max-w-sm border border-hairline p-2" style="animation-delay:0.05s;">
+        <div class="relative overflow-hidden bg-panel">
+          <img src="ChatGPT Image Sep 17, 2026.png" alt="Portrait of Deep Samani"
+               class="w-full h-[420px] object-cover"
+               style="display:block; width:100%; height:420px; object-fit:cover; background-color:#161514;"
+               onerror="this.style.display='none'; document.getElementById('portraitFallback').style.display='flex';">
+          <div id="portraitFallback" style="display:none; width:100%; height:420px; align-items:center; justify-content:center; background-color:#1B1A18; color:#6B655D; font-size:0.875rem; text-align:center; padding:0 1.5rem;">
+            Portrait — ChatGPT Image Sep 17, 2026.png
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-bg/50 via-transparent to-transparent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text side -->
+    <div class="flex flex-col justify-center px-8 md:px-14 py-16">
+      <p class="rise-in text-xs tracking-widest text-gold font-sans mb-6" style="animation-delay:0.1s;">A Personal Research Archive</p>
+      <h1 class="rise-in font-serif text-5xl md:text-6xl leading-[1.05] mb-8" style="animation-delay:0.18s;">
+        Deep<br><span class="text-goldbright italic">Samani</span>
+      </h1>
+      <p class="rise-in text-inkmute text-base md:text-lg leading-relaxed max-w-lg mb-10" style="animation-delay:0.26s;">
+        I am a lifelong learner and polymath driven by deep curiosity across many fields. I pursue knowledge not in isolation, but as interconnected systems of understanding—drawing wisdom from science, philosophy, history, the arts, and technology to form a richer view of the world. My approach blends rigorous study with practical insight, allowing me to connect ideas across disciplines and apply them in creative and meaningful ways. Whether exploring the foundations of human thought, the workings of the natural world, or the evolving landscape of modern innovation, I am committed to continuous growth and the pursuit of genuine understanding.
+      </p>
+      <div class="rise-in flex flex-wrap gap-4" style="animation-delay:0.34s;">
+        <a href="#matrix" class="px-6 py-3 border border-gold text-gold text-sm hover:bg-gold hover:text-bg transition-colors focus-gold">Explore the Fields</a>
+        <a href="#archive" class="px-6 py-3 border border-hairline text-inkmute text-sm hover:border-ink hover:text-ink transition-colors focus-gold">View Archive</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATEGORY MATRIX ============ -->
+<section id="matrix" class="max-w-7xl mx-auto px-6 md:px-10 py-24 border-t border-hairline">
+  <div class="mb-16 max-w-2xl">
+    <p class="text-xs tracking-widest text-gold font-sans mb-4">The Knowledge Matrix</p>
+    <h2 class="font-serif text-3xl md:text-4xl mb-4">Fields of Study</h2>
+    <p class="text-inkmute leading-relaxed">Nineteen disciplines, held together by one habit of mind. Essays filed within each field will appear in the archive below.</p>
+  </div>
+
+  <!-- I. Core / Foundational -->
+  <div class="mb-16">
+    <div class="flex items-baseline gap-4 mb-6 border-b border-hairline pb-3">
+      <span class="font-serif text-goldbright text-lg">I.</span>
+      <h3 class="font-serif text-xl">Core &amp; Foundational</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-hairline">
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-scroll text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Philosophy</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-brain text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Psychology</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-landmark text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">History</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-feather text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Literature &amp; Classics</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- II. Sciences -->
+  <div class="mb-16">
+    <div class="flex items-baseline gap-4 mb-6 border-b border-hairline pb-3">
+      <span class="font-serif text-goldbright text-lg">II.</span>
+      <h3 class="font-serif text-xl">Sciences</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-hairline">
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-atom text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Physics</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-dna text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Biology / Life Sciences</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-star text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Astronomy / Cosmology</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-square-root-variable text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Mathematics</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- III. Social & Human Sciences -->
+  <div class="mb-16">
+    <div class="flex items-baseline gap-4 mb-6 border-b border-hairline pb-3">
+      <span class="font-serif text-goldbright text-lg">III.</span>
+      <h3 class="font-serif text-xl">Social &amp; Human Sciences</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-hairline">
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-people-group text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Sociology</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-fingerprint text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Anthropology</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-chart-line text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Economics</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-globe text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Political Science / Geopolitics</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- IV. Arts & Creativity -->
+  <div class="mb-16">
+    <div class="flex items-baseline gap-4 mb-6 border-b border-hairline pb-3">
+      <span class="font-serif text-goldbright text-lg">IV.</span>
+      <h3 class="font-serif text-xl">Arts &amp; Creativity</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-hairline">
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-palette text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Visual Arts / Art History</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-music text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Music Theory &amp; History</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-pen-nib text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Creative Writing</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- V. Modern & Applied Fields -->
+  <div>
+    <div class="flex items-baseline gap-4 mb-6 border-b border-hairline pb-3">
+      <span class="font-serif text-goldbright text-lg">V.</span>
+      <h3 class="font-serif text-xl">Modern &amp; Applied Fields</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-hairline">
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-microchip text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Technology &amp; Computer Science</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-robot text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Artificial Intelligence</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-diagram-project text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Systems Thinking</h4>
+      </div>
+      <div class="category-card card-portal bg-panel text-left p-6">
+        <i class="fa-solid fa-chess-knight text-gold text-lg mb-4"></i>
+        <h4 class="font-serif text-lg">Entrepreneurship / Strategy</h4>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHIVE ============ -->
+<section id="archive" class="max-w-7xl mx-auto px-6 md:px-10 py-24 border-t border-hairline">
+  <div class="mb-10 max-w-2xl">
+    <p class="text-xs tracking-widest text-gold font-sans mb-4">The Content Vault</p>
+    <h2 class="font-serif text-3xl md:text-4xl mb-4">Research Logs &amp; Essays</h2>
+    <p class="text-inkmute leading-relaxed">Published papers will be filed here as they are written.</p>
+  </div>
+
+  <div id="archiveContainer" class="border-t border-hairline">
+    <!-- Populated by renderArchive() below. Left empty on purpose — no placeholder essays. -->
+  </div>
+</section>
+
+<!-- ============ CONTACT / FOOTER ============ -->
+<footer id="contact" class="border-t border-hairline bg-panel">
+  <div class="max-w-7xl mx-auto px-6 md:px-10 py-20">
+    <div class="grid md:grid-cols-2 gap-12 md:gap-20">
+      <div>
+        <p class="text-xs tracking-widest text-gold font-sans mb-4">Trust Field</p>
+        <p class="font-serif text-2xl md:text-3xl leading-snug text-ink max-w-md">
+          Truth-seeker decoding geopolitics, economics, &amp; history. Rooted in ancient wisdom, curious about future tech. I see deeply, connecting global dots.
+          <span class="text-gold">#TruthDigger</span>
+        </p>
+      </div>
+      <div class="flex flex-col md:items-end justify-end">
+        <p class="text-xs tracking-widest text-gold font-sans mb-6 md:text-right">Get in Touch</p>
+        <div class="space-y-4 text-sm">
+          <a href="tel:9913127356" class="flex items-center md:justify-end gap-3 text-inkmute hover:text-ink transition-colors focus-gold">
+            <span>9913127356</span><i class="fa-solid fa-phone text-gold w-4"></i>
+          </a>
+          <a href="mailto:deepprakashkabir@gmail.com" class="flex items-center md:justify-end gap-3 text-inkmute hover:text-ink transition-colors focus-gold">
+            <span>deepprakashkabir@gmail.com</span><i class="fa-solid fa-envelope text-gold w-4"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener" class="flex items-center md:justify-end gap-3 text-inkmute hover:text-ink transition-colors focus-gold">
+            <span>Instagram</span><i class="fa-brands fa-instagram text-gold w-4"></i>
+          </a>
+          <a href="https://x.com" target="_blank" rel="noopener" class="flex items-center md:justify-end gap-3 text-inkmute hover:text-ink transition-colors focus-gold">
+            <span>X (Twitter)</span><i class="fa-brands fa-x-twitter text-gold w-4"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-16 pt-8 border-t border-hairline flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-inkfaint">
+      <span>© <span id="year"></span> Deep Samani. DeepVantage.</span>
+      <span>Nineteen fields. One habit of mind.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ PDF MODAL ============ -->
+<div id="pdfModal" class="mm-hidden" style="position:fixed; inset:0; z-index:50; opacity:0;" aria-hidden="true">
+  <div id="pdfModalBackdrop" style="position:absolute; inset:0; background-color:rgba(0,0,0,0.8);"></div>
+  <div style="position:relative; height:100%; display:flex; align-items:center; justify-content:center; padding:1rem;">
+    <div id="pdfModalPanel" class="bg-panel border border-gold" style="position:relative; width:100%; max-width:56rem; height:85vh; display:flex; flex-direction:column; opacity:0; transform:scale(0.98);">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-hairline">
+        <h4 id="pdfModalTitle" class="font-serif text-lg text-ink truncate pr-4">Reading Paper</h4>
+        <div class="flex items-center gap-4 shrink-0">
+          <a id="pdfDownloadLink" href="#" download class="text-inkmute hover:text-gold transition-colors text-sm flex items-center gap-2 focus-gold">
+            <i class="fa-solid fa-download"></i><span class="hidden sm:inline">Download</span>
+          </a>
+          <button id="pdfModalClose" aria-label="Close reader" class="text-inkmute hover:text-ink transition-colors focus-gold" style="background:none;border:none;cursor:pointer;">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 bg-bg">
+        <iframe id="pdfFrame" src="" title="PDF reader" class="w-full h-full border-0"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---- Mobile nav ----
+  var navToggle = document.getElementById('navToggle');
+  var navToggleIcon = document.getElementById('navToggleIcon');
+  var mobileMenu = document.getElementById('mobileMenu');
+  var menuOpen = false;
+
+  navToggle.addEventListener('click', function () {
+    menuOpen = !menuOpen;
+    if (menuOpen) {
+      mobileMenu.classList.remove('mm-hidden');
+      navToggleIcon.classList.remove('fa-bars');
+      navToggleIcon.classList.add('fa-xmark');
+    } else {
+      mobileMenu.classList.add('mm-hidden');
+      navToggleIcon.classList.remove('fa-xmark');
+      navToggleIcon.classList.add('fa-bars');
+    }
+  });
+
+  var mobileLinks = mobileMenu.querySelectorAll('a');
+  for (var i = 0; i < mobileLinks.length; i++) {
+    mobileLinks[i].addEventListener('click', function () {
+      mobileMenu.classList.add('mm-hidden');
+      navToggleIcon.classList.remove('fa-xmark');
+      navToggleIcon.classList.add('fa-bars');
+      
